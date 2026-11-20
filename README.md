@@ -59,6 +59,18 @@ func pick(x, y float64) (itb.FrameTile, itb.Face, bool, error) {
   drawn face. A hit includes the source tile's XY and elevation, and the
   polygon for the specific face or side strip.
 
+Set the diamond width, diamond height, and vertical level height separately
+to match your game's projection. This example uses a 5:2 diamond and a
+17-pixel vertical level before camera zoom.
+
+```go
+view := itb.View{
+    TileWidth: 100, TileHeight: 40, LevelHeight: 17,
+    Pan: itb.Point{X: 300, Y: 200}, Zoom: 1.5,
+}
+frame := itb.Build(scene, view)
+```
+
 ## Ebitengine demo
 
 ```sh

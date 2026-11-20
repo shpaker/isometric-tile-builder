@@ -51,3 +51,35 @@ func TestRaisedTilePicking(t *testing.T) {
 		})
 	}
 }
+
+func TestPickWithCustomProjection(t *testing.T) {
+	scene, err := itb.NewScene([][]*itb.Tile{{{Elevation: 1, Thickness: 2}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	view := itb.View{
+		TileWidth: 100, TileHeight: 40, LevelHeight: 17,
+		Pan: itb.Point{X: 180.25, Y: 120.5}, Zoom: 1.5,
+	}
+	frame := itb.Build(scene, view)
+	tile := frame.Tiles()[0]
+	if want := (itb.Point{X: 180.25, Y: 44}); tile.Anchor != want {
+		t.Fatalf("top center = %+v, want %+v", tile.Anchor, want)
+	}
+	for _, test := range []struct {
+		name string
+		x, y float64
+		side itb.Side
+	}{
+		{"top", 180.25, 44, itb.Top},
+		{"left", 142.75, 84.5, itb.Left},
+		{"right", 217.75, 84.5, itb.Right},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			got, face, ok := frame.Pick(test.x, test.y)
+			if !ok || got.X != 0 || got.Y != 0 || got.Tile.Elevation != 1 || face.Side != test.side {
+				t.Fatalf("Pick(%g, %g) = %+v, side %v, hit %t", test.x, test.y, got, face.Side, ok)
+			}
+		})
+	}
+}
